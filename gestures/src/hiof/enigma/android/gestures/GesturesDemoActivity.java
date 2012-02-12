@@ -105,15 +105,16 @@ public class GesturesDemoActivity extends Activity implements
 				 */
 				Toast.makeText(
 						getApplicationContext(),
-						"He, I recognize that gesture! It's " + prediction.name
-								+ "!", Toast.LENGTH_SHORT).show();
+						"Hey, I recognize that gesture! It's "
+								+ prediction.name + "!", Toast.LENGTH_SHORT)
+						.show();
 
 				if (prediction.name.equals("square"))
 				{
-					// Do stuff for this gesture. Adapt to others if need be.
+					// Do stuff for this gesture
 				} else if (prediction.name.equals("circle"))
 				{
-					// Do other stuff
+					// Do other stuff for this other gesture
 				}
 				toggleOrientation();
 			}
