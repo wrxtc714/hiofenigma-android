@@ -180,15 +180,7 @@ public class TimerView
 								mTimer = null;
 
 								/* Reset the UI */
-								mTvHours.setText("00");
-								mTvMinutes.setText("00");
-								mTvSeconds.setText("00");
-								mTvHours.setTextColor(mContext.getResources()
-										.getColor(R.color.white));
-								mTvMinutes.setTextColor(mContext.getResources()
-										.getColor(R.color.white));
-								mTvSeconds.setTextColor(mContext.getResources()
-										.getColor(R.color.white));
+								resetTimers();
 
 								mTvHourMinuteSeparator
 										.setTextColor(mContext.getResources()
@@ -223,6 +215,20 @@ public class TimerView
 		mTvHourMinuteSeparator.setTextSize(mTextSize);
 		mTvMinuteSecondSeparator.setTextSize(mTextSize);
 
+		resetTimers();
+
+		mLlTimerLayout.addView(mTvHours);
+		mLlTimerLayout.addView(mTvHourMinuteSeparator);
+		mLlTimerLayout.addView(mTvMinutes);
+		mLlTimerLayout.addView(mTvMinuteSecondSeparator);
+		mLlTimerLayout.addView(mTvSeconds);
+
+		mLlTimerLayout
+				.setBackgroundResource(R.drawable.status_border_grey_slim);
+	}
+
+	protected void resetTimers()
+	{
 		mTvHours.setTextColor(mContext.getResources().getColor(R.color.white));
 		mTvMinutes
 				.setTextColor(mContext.getResources().getColor(R.color.white));
@@ -238,15 +244,6 @@ public class TimerView
 		mTvHours.setText("00");
 		mTvMinutes.setText("00");
 		mTvSeconds.setText("00");
-
-		mLlTimerLayout.addView(mTvHours);
-		mLlTimerLayout.addView(mTvHourMinuteSeparator);
-		mLlTimerLayout.addView(mTvMinutes);
-		mLlTimerLayout.addView(mTvMinuteSecondSeparator);
-		mLlTimerLayout.addView(mTvSeconds);
-
-		mLlTimerLayout
-				.setBackgroundResource(R.drawable.status_border_grey_slim);
 	}
 
 	/* Used by the UI for object reference */
@@ -272,6 +269,20 @@ public class TimerView
 			mAlarmManager.cancel((PendingIntent) mPendingAlarmIntent);
 		}
 
+	}
+
+	public void stop()
+	{
+		if (mTimer != null)
+		{
+			mTimer.cancel();
+			mTimer = null;
+		}
+		if (mAlarmManager != null && mPendingAlarmIntent != null)
+		{
+			mAlarmManager.cancel((PendingIntent) mPendingAlarmIntent);
+		}
+		resetTimers();
 	}
 
 	/* Our implementation of the CountDownTimer */

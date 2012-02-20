@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Kleruds KitchenTimer</string>
+    <string name="app_name">Kleruds Kitchen Timer</string>
     <string name="add_timer">+ Add timer</string>
     <string name="counting">Counting down</string>
     <string name="counting_from">Counting down from</string>
@@ -9,6 +9,7 @@
     <string name="time_up">Time is up</string>
     <string name="remove_timer">- Remove timer</string>
     <string name="timer_paused">Timer paused. Tap again to stop.</string>
+
     <color name="red">#FF0000</color>
     <color name="white">#FFFFFF</color>
     <color name="gray">#808080</color>

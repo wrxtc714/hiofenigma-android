@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -86,7 +89,11 @@ public class KlerudKitchenTimer extends Activity
 		 * bat.
 		 */
 		mTimers.add(new TimerView(getApplicationContext()));
+		mLlContentLayout.addView(mTimers.get(mTimers.size() - 1)
+				.getmLlTimerLayout());
 		mTimers.add(new TimerView(getApplicationContext()));
+		mLlContentLayout.addView(mTimers.get(mTimers.size() - 1)
+				.getmLlTimerLayout());
 		mTimers.add(new TimerView(getApplicationContext()));
 		mLlContentLayout.addView(mTimers.get(mTimers.size() - 1)
 				.getmLlTimerLayout());
@@ -127,6 +134,30 @@ public class KlerudKitchenTimer extends Activity
 		 * there you go.
 		 */
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		switch (item.getItemId())
+		{
+		case R.id.stopAll:
+			for (int i = 0; i < mTimers.size(); i++)
+			{
+				mTimers.get(i).stop();
+			}
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	/* Used by TimerView the currently chosen number */
