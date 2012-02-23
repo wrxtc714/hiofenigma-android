@@ -3,8 +3,8 @@ package edu.killerud.kitchentimer;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -43,12 +43,13 @@ public class KlerudKitchenTimer extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		Log.i("KitchenTimer", "Trolololol");
+
 		mLlContentLayout = (LinearLayout) findViewById(R.id.llContentLayout);
 		mLlTimePicker = (LinearLayout) findViewById(R.id.llTimePicker);
 
 		/* Sets up three TimePicker widgets for time input */
 		setupPickers();
-
 		/* Sets up the add- and remove timer buttons */
 		Button bAddTimer = (Button) findViewById(R.id.bAddTimer);
 		Button bRemoveTimer = (Button) findViewById(R.id.bRemoveTimer);
@@ -74,7 +75,6 @@ public class KlerudKitchenTimer extends Activity
 				}
 				mLlContentLayout.removeView(mTimers.get(mTimers.size() - 1)
 						.getmLlTimerLayout());
-
 				/*
 				 * Calls the timer's remove() to stop the alarm and the
 				 * countdown, as well as free up resources.
@@ -84,19 +84,50 @@ public class KlerudKitchenTimer extends Activity
 			}
 		});
 
-		/*
-		 * Adds a few timers so the user has something to look at right off the
-		 * bat.
-		 */
-		mTimers.add(new TimerView(getApplicationContext()));
-		mLlContentLayout.addView(mTimers.get(mTimers.size() - 1)
-				.getmLlTimerLayout());
-		mTimers.add(new TimerView(getApplicationContext()));
-		mLlContentLayout.addView(mTimers.get(mTimers.size() - 1)
-				.getmLlTimerLayout());
-		mTimers.add(new TimerView(getApplicationContext()));
-		mLlContentLayout.addView(mTimers.get(mTimers.size() - 1)
-				.getmLlTimerLayout());
+		try
+		{
+
+			for (int i = 0; i < savedInstanceState.size(); i++)
+			{
+				Log.i("KitchenTimer", "Trying to restore timer " + i);
+				try
+				{
+					if (savedInstanceState.getParcelable("timer" + i)
+							.toString().equals("TimerView"))
+					{
+						Log.i("KitchenTimer", "Actually restoring timer " + i);
+						mTimers.add((TimerView) savedInstanceState
+								.getParcelable("timer" + i));
+						mLlContentLayout.addView(mTimers
+								.get(mTimers.size() - 1).getmLlTimerLayout());
+					}
+				} catch (NullPointerException npe)
+				{
+					Log.i("KitchenTimer", "Added " + (i + 1)
+							+ " timers from state");
+					break;
+				}
+			}
+
+		} catch (NullPointerException npe)
+		{
+			Log.i("KitchenTimer", "NPE on state, defaulting");
+
+			/*
+			 * Adds a few timers so the user has something to look at right off
+			 * the bat.
+			 */
+			mTimers.add(new TimerView(getApplicationContext()));
+			mLlContentLayout.addView(mTimers.get(mTimers.size() - 1)
+					.getmLlTimerLayout());
+			mTimers.add(new TimerView(getApplicationContext()));
+			mLlContentLayout.addView(mTimers.get(mTimers.size() - 1)
+					.getmLlTimerLayout());
+			mTimers.add(new TimerView(getApplicationContext()));
+			mLlContentLayout.addView(mTimers.get(mTimers.size() - 1)
+					.getmLlTimerLayout());
+
+		}
 	}
 
 	/* Sets up the TimePicker widgets */
@@ -124,16 +155,14 @@ public class KlerudKitchenTimer extends Activity
 	}
 
 	@Override
-	public void onResume()
+	public void onSaveInstanceState(Bundle bundle)
 	{
-		super.onResume();
-		/*
-		 * Rather than having to store the data for all timers and restore it
-		 * again every time the app changes its orientation we simply force
-		 * portrait orientation here. It is ugly and should never be done, but
-		 * there you go.
-		 */
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		super.onSaveInstanceState(bundle);
+		for (int i = 0; i < mTimers.size(); i++)
+		{
+			bundle.putParcelable("timer" + i, mTimers.get(i));
+			Log.i("KitchenTimer", "Saving timer " + i);
+		}
 	}
 
 	@Override
@@ -158,6 +187,13 @@ public class KlerudKitchenTimer extends Activity
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+
 	}
 
 	/* Used by TimerView the currently chosen number */

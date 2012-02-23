@@ -16,22 +16,14 @@
         android:debuggable="false"
         android:icon="@drawable/icon"
         android:label="Kitchen Timer"
-        android:launchMode="singleTop"
         android:theme="@android:style/Theme.Holo.Light"
         uiOptions="splitActionBarWhenNarrow" >
         <activity
-            android:label="@string/app_name"
             android:name=".KlerudKitchenTimer"
+            android:label="@string/app_name"
             android:theme="@android:style/Theme.Holo.Light" >
-
-
-
- >
-            
-            
-            
-            
-            <intent-filter >
+ >
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />

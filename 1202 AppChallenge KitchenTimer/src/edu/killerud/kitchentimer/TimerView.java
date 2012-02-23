@@ -13,6 +13,8 @@ import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.CountDownTimer;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.PowerManager;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,21 +22,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class TimerView
+public class TimerView implements Parcelable
 {
+
 	private boolean mIsCounting;
 	private boolean mAlarmIsSounding;
 
 	private final LinearLayout mLlTimerLayout;
 
-	private final int mTextSize = 50;
+	private int mTextSize;
 
 	private TextView mTvHours;
 	private TextView mTvMinutes;
 	private TextView mTvSeconds;
 	private TextView mTvHourMinuteSeparator;
 
-	private final Context mContext;
+	private static Context mContext;
 
 	private KitchenCountdownTimer mTimer;
 
@@ -63,7 +66,7 @@ public class TimerView
 	{
 		mAlarmIsSounding = false;
 		mIsCounting = false;
-
+		mTextSize = 50;
 		mContext = context;
 		mThisTimerViewObject = this;
 
@@ -199,6 +202,157 @@ public class TimerView
 				});
 	}
 
+	public TimerView(Parcel source, Context context)
+	{
+		mIsCounting = source.readString().equals("true") ? true : false;
+		mAlarmIsSounding = source.readString().equals("true") ? true : false;
+		mTextSize = source.readInt();
+		mContext = (Context) source.readValue(Context.class.getClassLoader());
+		mThisTimerViewObject = this;
+		mCurrentTime = source.readLong();
+		Long timeWhenSaved = source.readLong();
+
+		mAlarmIntent = source.readParcelable(Intent.class.getClassLoader());
+		mAlarmManager = (AlarmManager) mContext
+				.getSystemService(Context.ALARM_SERVICE);
+
+		mLlTimerLayout = new LinearLayout(mContext);
+		mLlTimerLayout.setClickable(true);
+		mLlTimerLayout.setGravity(android.view.Gravity.CENTER);
+
+		setupLayouts();
+
+		mTimer = new KitchenCountdownTimer(this,
+				(mCurrentTime - (System.currentTimeMillis() - timeWhenSaved)),
+				1000);
+		mTimer.start();
+		/*
+		 * The shortClickListener. Here we start the timer and set the alarm, as
+		 * well as stop a sounding alarm.
+		 */
+		mLlTimerLayout.setOnClickListener(new OnClickListener()
+		{
+
+			public synchronized void onClick(View v)
+			{
+				if (mTimer != null && mIsCounting)
+				{
+					Toast.makeText(mContext,
+							"To stop the timer touch and hold.",
+							Toast.LENGTH_SHORT).show();
+				} else if (mAlarmIsSounding)
+				{
+					/*
+					 * Here we release the wake lock we acquired further down in
+					 * the code, in KitchenCountDownTimer.onFinish(). We also
+					 * stop the annoying alarm. Then we reset the UI.
+					 */
+					mWakeLock.release();
+					mMediaPlayer.stop();
+					mAlarmIsSounding = false;
+
+					mTvHours.setTextColor(mContext.getResources().getColor(
+							R.color.white));
+					mTvMinutes.setTextColor(mContext.getResources().getColor(
+							R.color.white));
+					mTvSeconds.setTextColor(mContext.getResources().getColor(
+							R.color.white));
+					mTvHourMinuteSeparator.setTextColor(mContext.getResources()
+							.getColor(R.color.white));
+					mTvMinuteSecondSeparator.setTextColor(mContext
+							.getResources().getColor(R.color.white));
+				} else if (!mIsCounting && !mAlarmIsSounding)
+				{
+
+					/* Set a new alarm and start counting down! */
+					Integer hours = KlerudKitchenTimer.getHours();
+					Integer minutes = KlerudKitchenTimer.getMinutes();
+					Integer seconds = KlerudKitchenTimer.getSeconds();
+
+					Long millisInFuture = (long) ((seconds * 1000)
+							+ (minutes * 60 * 1000) + (hours * 60 * 60 * 1000));
+
+					if (millisInFuture < 1000)
+					{
+						Toast.makeText(
+								mContext,
+								"Please enter a higher number. Surely you can count to one yourself?",
+								Toast.LENGTH_SHORT).show();
+						return;
+					}
+
+					mTvHours.setTextColor(mContext.getResources().getColor(
+							R.color.white));
+					mTvMinutes.setTextColor(mContext.getResources().getColor(
+							R.color.white));
+					mTvSeconds.setTextColor(mContext.getResources().getColor(
+							R.color.white));
+					mTvHourMinuteSeparator.setTextColor(mContext.getResources()
+							.getColor(R.color.white));
+					mTvMinuteSecondSeparator.setTextColor(mContext
+							.getResources().getColor(R.color.white));
+
+					mAlarmIntent = new Intent(mContext,
+							KlerudKitchenTimer.class);
+					mPendingAlarmIntent = PendingIntent.getBroadcast(mContext,
+							1234, mAlarmIntent, 0);
+					mAlarmManager = (AlarmManager) mContext
+							.getSystemService(Context.ALARM_SERVICE);
+					mAlarmManager.set(AlarmManager.RTC_WAKEUP, millisInFuture,
+							(PendingIntent) mPendingAlarmIntent);
+
+					mTimer = new KitchenCountdownTimer(mThisTimerViewObject,
+							millisInFuture, 1000);
+					mTimer.start();
+
+					mIsCounting = true;
+				}
+
+			}
+
+		});
+
+		/*
+		 * The longClickListener. Here we stop a countdown and alarm while it is
+		 * in progress (hasn't sounded yet).
+		 */
+		mLlTimerLayout
+				.setOnLongClickListener(new android.view.View.OnLongClickListener()
+				{
+
+					public synchronized boolean onLongClick(View v)
+					{
+						if (mTimer != null && mIsCounting)
+						{
+							try
+							{
+								mAlarmManager
+										.cancel((PendingIntent) mPendingAlarmIntent);
+								mTimer.cancel();
+								mIsCounting = false;
+								mTimer = null;
+
+								/* Reset the UI */
+								resetTimers();
+
+								mTvHourMinuteSeparator
+										.setTextColor(mContext.getResources()
+												.getColor(R.color.white));
+								mTvMinuteSecondSeparator
+										.setTextColor(mContext.getResources()
+												.getColor(R.color.white));
+							} catch (Exception e)
+							{
+
+							}
+						}
+						return true;
+
+					}
+				});
+
+	}
+
 	/* Sets up the Timer UI */
 	protected void setupLayouts()
 	{
@@ -249,7 +403,14 @@ public class TimerView
 	/* Used by the UI for object reference */
 	public LinearLayout getmLlTimerLayout()
 	{
-		return mLlTimerLayout;
+		if (mLlTimerLayout != null)
+		{
+			return mLlTimerLayout;
+		} else
+		{
+			return new LinearLayout(mContext);
+		}
+
 	}
 
 	/*
@@ -262,7 +423,10 @@ public class TimerView
 		{
 			mTimer.cancel();
 			mTimer = null;
-			mLlTimerLayout.removeAllViews();
+			if (mLlTimerLayout != null)
+			{
+				mLlTimerLayout.removeAllViews();
+			}
 		}
 		if (mAlarmManager != null && mPendingAlarmIntent != null)
 		{
@@ -287,6 +451,7 @@ public class TimerView
 
 	/* Our implementation of the CountDownTimer */
 	private class KitchenCountdownTimer extends CountDownTimer
+
 	{
 
 		private final TimerView mParent;
@@ -469,4 +634,37 @@ public class TimerView
 		return mCurrentTime;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "TimerView";
+	}
+
+	public int describeContents()
+	{
+		return hashCode();
+	}
+
+	public void writeToParcel(Parcel dest, int flags)
+	{
+
+		dest.writeString(mIsCounting ? "true" : "false");
+		dest.writeString(mAlarmIsSounding ? "true" : "false");
+		dest.writeLong(mCurrentTime);
+		dest.writeLong(System.currentTimeMillis());
+		dest.writeParcelable(mAlarmIntent, PARCELABLE_WRITE_RETURN_VALUE);
+	}
+
+	public static final Parcelable.Creator<TimerView> CREATOR = new Parcelable.Creator<TimerView>()
+	{
+		public TimerView createFromParcel(Parcel source)
+		{
+			return new TimerView(source, mContext);
+		}
+
+		public TimerView[] newArray(int size)
+		{
+			return new TimerView[size];
+		}
+	};
 }
