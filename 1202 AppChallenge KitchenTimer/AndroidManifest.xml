@@ -14,8 +14,8 @@
 
     <application
         android:debuggable="true"
-        android:icon="@drawable/icon"
-        android:label="Kitchen Timer"
+        android:icon="@drawable/icon_96"
+        android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo.Light"
         uiOptions="splitActionBarWhenNarrow" >
         <activity
@@ -31,7 +31,7 @@
 
         <service
             android:exported="false"
-            android:label="KlerudsCountdownService"
+            android:label="@string/service_label"
             android:name="edu.killerud.kitchentimer.CountdownService" >
             <intent-filter >
                 <action android:name="ADD_TIMER" />

@@ -50,8 +50,7 @@ public class TimerView
 			{
 				if (isCounting)
 				{
-					Toast.makeText(mContext,
-							"To stop the timer touch and hold.",
+					Toast.makeText(mContext, R.string.how_to_stop,
 							Toast.LENGTH_SHORT).show();
 				} else if (isSounding)
 				{
@@ -91,9 +90,7 @@ public class TimerView
 
 					if (millisInFuture < 1000)
 					{
-						Toast.makeText(
-								mContext,
-								"Please enter a higher number. Surely you can count to one yourself?",
+						Toast.makeText(mContext, R.string.enter_higher,
 								Toast.LENGTH_SHORT).show();
 						return;
 					}

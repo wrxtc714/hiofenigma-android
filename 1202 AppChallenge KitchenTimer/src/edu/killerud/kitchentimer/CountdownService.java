@@ -40,7 +40,7 @@ public class CountdownService extends Service
 	{
 		if (intent == null || intent.getAction() == null)
 		{
-			return Service.START_NOT_STICKY;
+			return Service.START_STICKY;
 		}
 		if (intent.getAction().equals("ADD_TIMER"))
 		{
@@ -62,7 +62,7 @@ public class CountdownService extends Service
 			return getNumberOfTimers();
 		} else
 		{
-			return Service.START_NOT_STICKY;
+			return Service.START_STICKY;
 		}
 
 	}
@@ -138,11 +138,27 @@ public class CountdownService extends Service
 			stopped.setAction("TIMER_ALARM_STOPPED");
 			stopped.putExtra("TIMER_ID", intent.getIntExtra("TIMER_ID", -1));
 			sendBroadcast(stopped);
+			if (allAreFinished())
+			{
+				return Service.START_NOT_STICKY;
+			}
 			return Service.START_STICKY;
 		} catch (IndexOutOfBoundsException e)
 		{
 			return Service.START_STICKY;
 		}
+	}
+
+	private boolean allAreFinished()
+	{
+		for (int i = 0; i < mTimers.size(); i++)
+		{
+			if (mTimers.get(i).isCounting)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private int startTimer(Intent intent)
@@ -155,7 +171,7 @@ public class CountdownService extends Service
 					mMillisInFuture);
 		} catch (IndexOutOfBoundsException e)
 		{
-			return Service.START_NOT_STICKY;
+			return Service.START_STICKY;
 		}
 		return Service.START_STICKY;
 	}
@@ -168,8 +184,7 @@ public class CountdownService extends Service
 		/* Creates the notification itself */
 		Notification notification = new Notification(
 				android.R.drawable.stat_sys_warning,
-				"Time is up! Touch the timer to stop the alarm.",
-				System.currentTimeMillis());
+				getString(R.string.notification), System.currentTimeMillis());
 
 		Intent resumeActivity = new Intent(this, KlerudKitchenTimer.class);
 
@@ -182,8 +197,9 @@ public class CountdownService extends Service
 		resumeActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
 				| Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-		notification.setLatestEventInfo(this, "Time is up!",
-				"Time is up! Tap the timer to stop the alarm.",
+		notification.setLatestEventInfo(this,
+				getString(R.string.notification_title),
+				getString(R.string.notification),
 				PendingIntent.getActivity(this, 0, resumeActivity, 0));
 
 		/* Sets some of the notification properties */
