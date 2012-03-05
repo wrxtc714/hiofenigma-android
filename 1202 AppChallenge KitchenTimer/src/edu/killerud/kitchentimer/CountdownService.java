@@ -74,6 +74,16 @@ public class CountdownService extends Service
 		intent.putExtra("NUMBER_OF_TIMERS",
 				mTimers.size() == 0 ? 3 : mTimers.size());
 		sendBroadcast(intent);
+		for (int i = 0; i < mTimers.size(); i++)
+		{
+			if (mTimers.get(i).isSounding)
+			{
+				Intent intentA = new Intent();
+				intentA.setAction("ALARM_SOUNDING");
+				intentA.putExtra("TIMER_ID", i);
+				sendBroadcast(intentA);
+			}
+		}
 		return Service.START_STICKY;
 	}
 
@@ -194,6 +204,8 @@ public class CountdownService extends Service
 
 	private class Timer
 	{
+		boolean isSounding;
+
 		private KitchenCountdownTimer mTimer;
 
 		protected MediaPlayer mMediaPlayer;
@@ -264,6 +276,7 @@ public class CountdownService extends Service
 			{
 				mWakeLock.release();
 			}
+			isSounding = false;
 		}
 
 		/* Our implementation of the CountDownTimer */
@@ -285,6 +298,7 @@ public class CountdownService extends Service
 			{
 
 				isCounting = false;
+				isSounding = true;
 				/*
 				 * Sets up the sound the app plays for an alarm, using the
 				 * default alarm for the particular phone, and some backups just

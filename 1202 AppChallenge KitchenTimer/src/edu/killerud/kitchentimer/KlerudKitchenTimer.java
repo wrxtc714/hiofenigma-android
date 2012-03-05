@@ -243,7 +243,7 @@ public class KlerudKitchenTimer extends Activity
 				try
 				{
 					mTimerViews.get(intent.getIntExtra("TIMER_ID", -1))
-							.resetUI();
+							.setSounding();
 				} catch (IndexOutOfBoundsException e)
 				{
 					// Something went wrong elsewhere
