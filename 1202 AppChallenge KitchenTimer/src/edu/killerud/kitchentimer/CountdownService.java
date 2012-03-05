@@ -196,8 +196,6 @@ public class CountdownService extends Service
 	{
 		private KitchenCountdownTimer mTimer;
 
-		private long mCurrentTime;
-
 		protected MediaPlayer mMediaPlayer;
 		AudioManager mAudioManager;
 
@@ -210,7 +208,6 @@ public class CountdownService extends Service
 		private final int mTimerId;
 
 		boolean isCounting;
-		boolean isSounding;
 
 		public Timer(int timerId)
 		{
@@ -220,6 +217,10 @@ public class CountdownService extends Service
 
 		public synchronized void startTimer(long millisInFuture)
 		{
+			if (isCounting)
+			{
+				return;
+			}
 			Intent mAlarmIntent = new Intent(getApplicationContext(),
 					KlerudKitchenTimer.class);
 			mPendingAlarmIntent = PendingIntent.getBroadcast(
@@ -247,7 +248,7 @@ public class CountdownService extends Service
 				mAlarmManager.cancel((PendingIntent) mPendingAlarmIntent);
 			}
 			isCounting = false;
-			if (mWakeLock != null)
+			if (mWakeLock != null && mWakeLock.isHeld())
 			{
 				mWakeLock.release();
 			}
@@ -259,11 +260,10 @@ public class CountdownService extends Service
 			{
 				mMediaPlayer.stop();
 			}
-			if (mWakeLock != null)
+			if (mWakeLock != null && mWakeLock.isHeld())
 			{
 				mWakeLock.release();
 			}
-			isSounding = false;
 		}
 
 		/* Our implementation of the CountDownTimer */
@@ -346,7 +346,6 @@ public class CountdownService extends Service
 					}
 					mMediaPlayer.start();
 				}
-
 				/*
 				 * The PowerManager and its flags make sure the phone screen
 				 * lights up if it has been locked down. This is called
@@ -363,12 +362,17 @@ public class CountdownService extends Service
 						PowerManager.FULL_WAKE_LOCK
 								| PowerManager.ACQUIRE_CAUSES_WAKEUP
 								| PowerManager.ON_AFTER_RELEASE, "Time is up");
-				mWakeLock.acquire();
+
+				if (!mWakeLock.isHeld())
+				{
+					mWakeLock.acquire();
+				}
 
 				Intent alarm = new Intent();
 				alarm.setAction("ALARM_SOUNDING");
 				alarm.putExtra("TIMER_ID", mTimerId);
 				sendBroadcast(alarm);
+				showAppNotification();
 			}
 
 			@Override
@@ -381,11 +385,6 @@ public class CountdownService extends Service
 				sendBroadcast(tick);
 			}
 
-		}
-
-		public long getCurrentTime()
-		{
-			return mCurrentTime;
 		}
 
 		@Override

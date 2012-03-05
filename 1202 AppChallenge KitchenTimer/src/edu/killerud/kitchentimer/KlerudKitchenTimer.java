@@ -240,8 +240,14 @@ public class KlerudKitchenTimer extends Activity
 
 			} else if (intent.getAction().equals("ALARM_SOUNDING"))
 			{
-				mTimerViews.get(intent.getIntExtra("TIMER_ID", -1))
-						.setSounding();
+				try
+				{
+					mTimerViews.get(intent.getIntExtra("TIMER_ID", -1))
+							.resetUI();
+				} catch (IndexOutOfBoundsException e)
+				{
+					// Something went wrong elsewhere
+				}
 			} else if (intent.getAction().equals("TIMER_ALARM_STOPPED"))
 
 			{
@@ -258,6 +264,12 @@ public class KlerudKitchenTimer extends Activity
 				addTimerView();
 			} else if (intent.getAction().equals("NUMBER_OF_TIMERS"))
 			{
+				if (intent.getIntExtra("NUMBER_OF_TIMERS", 0) == mTimerViews
+						.size())
+				{
+					return;
+				}
+				mTimerViews = new ArrayList<TimerView>();
 				for (int i = 0; i < intent.getIntExtra("NUMBER_OF_TIMERS", 0); i++)
 				{
 					addTimerView();

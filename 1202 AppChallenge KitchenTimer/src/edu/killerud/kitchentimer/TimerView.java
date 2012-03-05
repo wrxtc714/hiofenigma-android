@@ -77,6 +77,7 @@ public class TimerView
 							.getColor(R.color.white));
 					mTvMinuteSecondSeparator.setTextColor(mContext
 							.getResources().getColor(R.color.white));
+					isSounding = false;
 				} else if (!isCounting && !isSounding)
 				{
 
@@ -108,13 +109,13 @@ public class TimerView
 					mTvMinuteSecondSeparator.setTextColor(mContext
 							.getResources().getColor(R.color.white));
 
-					Intent stopAlarm = new Intent(mContext,
+					Intent startTimer = new Intent(mContext,
 							edu.killerud.kitchentimer.CountdownService.class);
-					stopAlarm.setAction("START_TIMER");
-					stopAlarm.putExtra("TIMER_ID", mTimerViewId);
-					stopAlarm.putExtra("MILLISINFUTURE", millisInFuture);
-					mContext.startService(stopAlarm);
-
+					startTimer.setAction("START_TIMER");
+					startTimer.putExtra("TIMER_ID", mTimerViewId);
+					startTimer.putExtra("MILLISINFUTURE", millisInFuture);
+					mContext.startService(startTimer);
+					isCounting = true;
 				}
 
 			}
@@ -152,6 +153,7 @@ public class TimerView
 								stopTimer.setAction("STOP_TIMER");
 								stopTimer.putExtra("TIMER_ID", mTimerViewId);
 								mContext.startService(stopTimer);
+								isCounting = false;
 
 							} catch (Exception e)
 							{
@@ -211,12 +213,12 @@ public class TimerView
 		mTvSeconds.setText("00");
 	}
 
-	public void updateTick(long timeLeft)
+	public void updateTick(long millisUntillFinished)
 	{
-		Long hours = timeLeft / (60 * 60 * 1000);
-		Long minutes = (timeLeft / (60 * 1000)) - (hours * 60 * 60 * 1000);
-		Long seconds = timeLeft / 1000 - (hours * 60 * 60 * 1000)
-				- (minutes * 60 * 1000);
+		int hours = (int) (millisUntillFinished / 3600000);
+		int minutes = (int) (millisUntillFinished / 60000) - (hours * 60);
+		int seconds = (int) (millisUntillFinished / 1000) - (hours * 60 * 60)
+				- (minutes * 60);
 		mTvHours.setText((hours < 10) ? "0" + hours : "" + hours);
 		mTvMinutes.setText((minutes < 10) ? "0" + minutes : "" + minutes);
 		mTvSeconds.setText((seconds < 10) ? "0" + seconds : "" + seconds);
@@ -249,6 +251,7 @@ public class TimerView
 	public void setSounding()
 	{
 		isSounding = true;
+		isCounting = false;
 		mTvHours.setTextColor(mContext.getResources().getColor(R.color.red));
 		mTvMinutes.setTextColor(mContext.getResources().getColor(R.color.red));
 		mTvSeconds.setTextColor(mContext.getResources().getColor(R.color.red));
