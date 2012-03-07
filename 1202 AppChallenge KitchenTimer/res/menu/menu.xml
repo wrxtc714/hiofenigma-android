@@ -5,7 +5,7 @@
         android:id="@+id/stopAll"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:showAsAction="withText"
-        android:title="Stop all timers">
+        android:title="@string/stop_all">
     </item>
 
 </menu>
