@@ -1,3 +1,25 @@
+/**
+ *   Copyright William Killerud 2012
+ *   
+ *   This file is part of OpenTimer.
+ *
+ *   OpenTimer is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   any later version.
+ *
+ *   OpenTimer is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with OpenTimer.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ *   For questions contact William Killerud at william@killerud.com
+ * 
+ */
+
 package edu.killerud.kitchentimer;
 
 import java.io.IOException;
@@ -19,7 +41,6 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.Vibrator;
-import android.util.Log;
 
 public class CountdownService extends Service
 
@@ -383,8 +404,8 @@ public class CountdownService extends Service
 					 * 
 					 * Bad parameter, bad! >:(
 					 */
-					Log.e("CountdownTimer",
-							"Illegal argument exception:" + e1.toString());
+					// Log.e("CountdownTimer",
+					// "Illegal argument exception:" + e1.toString());
 				} catch (SecurityException e1)
 				{
 					/*
@@ -392,23 +413,23 @@ public class CountdownService extends Service
 					 * resource. This exception is mainly a sign that the app
 					 * lacks a permission in AndroidManifest.xml.
 					 */
-					Log.e("CountdownTimer",
-							"Security exception: " + e1.toString());
+					// Log.e("CountdownTimer",
+					// "Security exception: " + e1.toString());
 				} catch (IllegalStateException e1)
 				{
 					/*
 					 * The media player was in a state that didn't allow for
 					 * this particular operation right now.
 					 */
-					Log.e("CountdownService",
-							"Illegal state exception: " + e1.toString());
+					// Log.e("CountdownService",
+					// "Illegal state exception: " + e1.toString());
 				} catch (IOException e1)
 				{
 					/*
 					 * The app could not read the sound file. We have nothing to
 					 * play! This isn't that critical, as we vibrate as well.
 					 */
-					Log.e("CountdownTimer", "IOException: " + e1.toString());
+					// Log.e("CountdownTimer", "IOException: " + e1.toString());
 				}
 
 				/*
@@ -428,11 +449,12 @@ public class CountdownService extends Service
 						mMediaPlayer.prepare();
 					} catch (IllegalStateException e)
 					{
-						Log.e("CountdownService", "Illegal state exception: "
-								+ e.toString());
+						// Log.e("CountdownService", "Illegal state exception: "
+						// + e.toString());
 					} catch (IOException e)
 					{
-						Log.e("CountdownTimer", "IOException: " + e.toString());
+						// Log.e("CountdownTimer", "IOException: " +
+						// e.toString());
 					}
 					mMediaPlayer.start();
 				}
@@ -444,8 +466,8 @@ public class CountdownService extends Service
 				} catch (Exception e)
 				{
 					/* Already vibrating, no biggie */
-					Log.e("CountdownTimer",
-							"Vibrator exception: " + e.toString());
+					// Log.e("CountdownTimer",
+					// "Vibrator exception: " + e.toString());
 				}
 
 				/*

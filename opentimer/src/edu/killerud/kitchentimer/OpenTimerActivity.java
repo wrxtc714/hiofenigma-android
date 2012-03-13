@@ -1,3 +1,25 @@
+/**
+ *   Copyright William Killerud 2012
+ *   
+ *   This file is part of OpenTimer.
+ *
+ *   OpenTimer is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   any later version.
+ *
+ *   OpenTimer is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with OpenTimer.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ *   For questions contact William Killerud at william@killerud.com
+ * 
+ */
+
 package edu.killerud.kitchentimer;
 
 import java.util.ArrayList;
@@ -11,7 +33,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -68,8 +89,8 @@ public class OpenTimerActivity extends Activity
 
 		public void onServiceDisconnected(ComponentName className)
 		{
-			Log.i("OpenTimerActivity",
-					"Service disconnected. 99.9% likely that all timers were done!");
+			// Log.i("OpenTimerActivity",
+			// "Service disconnected. 99.9% likely that all timers were done!");
 			mCDService = null;
 		}
 	};
@@ -140,9 +161,6 @@ public class OpenTimerActivity extends Activity
 		 * nothing happening in it, I'm not comming back!
 		 * 
 		 * Run the following method to do some magic! <|:D~
-		 * 
-		 * TODO service was shut down while counting at pause. Probably fixed,
-		 * need to test.
 		 */
 		appShutdownMagic();
 	}
