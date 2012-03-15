@@ -47,14 +47,14 @@ public class CountdownView
 
 	boolean isCounting;
 	boolean isSounding;
-	private CountdownService mCDService;
+	private OpenTimerService mService;
 
 	public CountdownView(Context context, int timerViewId,
-			CountdownService serviceBinder)
+			OpenTimerService serviceBinder)
 	{
 		mTextSize = 50;
 		mContext = context;
-		mCDService = serviceBinder;
+		mService = serviceBinder;
 		mTimerViewId = timerViewId;
 
 		mLlTimerLayout = new LinearLayout(mContext);
@@ -79,7 +79,7 @@ public class CountdownView
 				 * the service on click.
 				 */
 				Intent startService = new Intent(mContext,
-						CountdownService.class);
+						OpenTimerService.class);
 				mContext.startService(startService);
 
 				if (isCounting)
@@ -100,7 +100,7 @@ public class CountdownView
 					// stopAlarm.putExtra("TIMER_ID", mTimerViewId);
 					// mContext.startService(stopAlarm);
 
-					mCDService.stopAlarm(mTimerViewId);
+					mService.stopAlarm(mTimerViewId);
 
 					mTvHours.setTextColor(mContext.getResources().getColor(
 							R.color.white));
@@ -142,7 +142,7 @@ public class CountdownView
 					mTvMinuteSecondSeparator.setTextColor(mContext
 							.getResources().getColor(R.color.white));
 
-					mCDService.startTimer(mTimerViewId, millisInFuture);
+					mService.startTimer(mTimerViewId, millisInFuture);
 					isCounting = true;
 				}
 
@@ -163,7 +163,7 @@ public class CountdownView
 						{
 							/* Reset the UI */
 							resetUI();
-							mCDService.stopTimer(mTimerViewId);
+							mService.stopTimer(mTimerViewId);
 							isCounting = false;
 						}
 						return true;

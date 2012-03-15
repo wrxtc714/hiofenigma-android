@@ -19,5 +19,6 @@
     <string name="loading">Loading…</string>
     <string name="foreground_message_title">OpenTimer is running</string>
     <string name="foreground_message_body">To start and stop timers open the app by tapping this notification.</string>
+    <string name="clear_history">Clear history</string>
 
 </resources>

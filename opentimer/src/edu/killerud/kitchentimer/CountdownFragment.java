@@ -24,6 +24,7 @@ package edu.killerud.kitchentimer;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -68,12 +69,12 @@ public class CountdownFragment extends Fragment
 	private static NumberPicker npHours;
 	private static NumberPicker npMinutes;
 	private static NumberPicker npSeconds;
-	private CountdownService mCDService;
+	private OpenTimerService mCDService;
 	protected ServiceConnection mConnection = new ServiceConnection()
 	{
 		public void onServiceConnected(ComponentName className, IBinder service)
 		{
-			mCDService = ((CountdownService.ServiceBinder) service)
+			mCDService = ((OpenTimerService.ServiceBinder) service)
 					.getService();
 			mCDService.announceServiceState();
 
@@ -102,6 +103,44 @@ public class CountdownFragment extends Fragment
 
 	private ArrayList<CountdownView> mTimerViews;
 
+	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
+	{
+
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			if (intent == null)
+			{
+				return;
+			}
+			if (intent.getAction().equals("TIMER_TICK"))
+			{
+				mTimerViews.get(intent.getIntExtra("TIMER_ID", -1)).updateTick(
+						intent.getLongExtra("TIME_LEFT", 0l));
+			} else if (intent.getAction().equals("TIMER_REMOVED"))
+			{
+				removeTimerView();
+			} else if (intent.getAction().equals("TIMER_STOPPED"))
+			{
+				mTimerViews.get(intent.getIntExtra("TIMER_ID", -1)).resetUI();
+
+			} else if (intent.getAction().equals("ALARM_SOUNDING"))
+			{
+				mTimerViews.get(intent.getIntExtra("TIMER_ID", -1))
+						.setSounding();
+			} else if (intent.getAction().equals("TIMER_ALARM_STOPPED"))
+
+			{
+				mTimerViews.get(intent.getIntExtra("TIMER_ID", -1)).resetUI();
+			} else if (intent.getAction().equals("TIMER_ADDED"))
+			{
+				addTimerView();
+			}
+
+		}
+
+	};
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
@@ -112,13 +151,13 @@ public class CountdownFragment extends Fragment
 		}
 		mViewGroup = container;
 		mContext = container.getContext();
-
+		setHasOptionsMenu(true);
 		/*
 		 * Binds the activity to our service in order to make method calls
 		 * directly on the service, as well as properties.
 		 */
 		Intent bindIntent = new Intent(container.getContext(),
-				CountdownService.class);
+				OpenTimerService.class);
 		mContext.bindService(bindIntent, mConnection, Context.BIND_IMPORTANT);
 
 		/* Sets up the layout */
@@ -162,10 +201,10 @@ public class CountdownFragment extends Fragment
 		super.onResume();
 		registerBroadcastReceiver();
 
-		Intent bindIntent = new Intent(mContext, CountdownService.class);
+		Intent bindIntent = new Intent(mContext, OpenTimerService.class);
 		mContext.bindService(bindIntent, mConnection, Context.BIND_IMPORTANT);
 
-		Intent startService = new Intent(mContext, CountdownService.class);
+		Intent startService = new Intent(mContext, OpenTimerService.class);
 		mContext.startService(startService);
 	}
 
@@ -175,13 +214,13 @@ public class CountdownFragment extends Fragment
 		super.onPause();
 		mContext.unregisterReceiver(broadcastReceiver);
 		mContext.unbindService(mConnection);
-		/*
-		 * I don't know about you, but when I navigate out of an app with
-		 * nothing happening in it, I'm not comming back!
-		 * 
-		 * Run the following method to do some magic! <|:D~
-		 */
-		serviceShutdownMagic();
+
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+	{
+		inflater.inflate(R.menu.countdown, menu);
 	}
 
 	@Override
@@ -198,6 +237,20 @@ public class CountdownFragment extends Fragment
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState)
+	{
+		super.onActivityCreated(savedInstanceState);
+
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+	{
+		outState.putString("cd", "workaround");
+		super.onSaveInstanceState(outState);
 	}
 
 	protected void registerBroadcastReceiver()
@@ -268,44 +321,6 @@ public class CountdownFragment extends Fragment
 		mLlTimePicker.addView(npSeconds);
 	}
 
-	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
-	{
-
-		@Override
-		public void onReceive(Context context, Intent intent)
-		{
-			if (intent == null)
-			{
-				return;
-			}
-			if (intent.getAction().equals("TIMER_TICK"))
-			{
-				mTimerViews.get(intent.getIntExtra("TIMER_ID", -1)).updateTick(
-						intent.getLongExtra("TIME_LEFT", 0l));
-			} else if (intent.getAction().equals("TIMER_REMOVED"))
-			{
-				removeTimerView();
-			} else if (intent.getAction().equals("TIMER_STOPPED"))
-			{
-				mTimerViews.get(intent.getIntExtra("TIMER_ID", -1)).resetUI();
-
-			} else if (intent.getAction().equals("ALARM_SOUNDING"))
-			{
-				mTimerViews.get(intent.getIntExtra("TIMER_ID", -1))
-						.setSounding();
-			} else if (intent.getAction().equals("TIMER_ALARM_STOPPED"))
-
-			{
-				mTimerViews.get(intent.getIntExtra("TIMER_ID", -1)).resetUI();
-			} else if (intent.getAction().equals("TIMER_ADDED"))
-			{
-				addTimerView();
-			}
-
-		}
-
-	};
-
 	public static int getHours()
 	{
 		return npHours.getCurrent();
@@ -319,31 +334,6 @@ public class CountdownFragment extends Fragment
 	public static int getSeconds()
 	{
 		return npSeconds.getCurrent();
-	}
-
-	protected void serviceShutdownMagic()
-	{
-		if (mCDService != null && mConnection != null)
-		{
-			if (mCDService.allAreFinished())
-			{
-				mCDService.stopSelf();
-			}
-		}
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState)
-	{
-		super.onActivityCreated(savedInstanceState);
-
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState)
-	{
-		outState.putString("cd", "workaround");
-		super.onSaveInstanceState(outState);
 	}
 
 }

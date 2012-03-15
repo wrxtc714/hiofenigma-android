@@ -44,7 +44,7 @@ public class TabHostFragmentActivity extends FragmentActivity
 		mTabsAdapter.addTab(tabLayout.setIndicator(tabStyle("Countdown")),
 				CountdownFragment.class, null);
 		mTabsAdapter.addTab(tabLayout.setIndicator(tabStyle("Stopwatch")),
-				StopwatchFragment.class, null);
+				StopWatchFragment.class, null);
 		mTabsAdapter.addTab(tabLayout.setIndicator(tabStyle("Interval")),
 				IntervalFragment.class, null);
 		mViewPager.setCurrentItem(0);
@@ -67,6 +67,19 @@ public class TabHostFragmentActivity extends FragmentActivity
 		return tabLabelContent;
 	}
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		outState.putString("tab", mTabHost.getCurrentTabTag());
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		return true;
+	}
+
 	public class ViewPagerAdapter extends FragmentPagerAdapter
 	{
 		private final ArrayList<Fragment> fragments = new ArrayList<Fragment>();
@@ -75,7 +88,7 @@ public class TabHostFragmentActivity extends FragmentActivity
 		{
 			super(fm);
 			fragments.add(new CountdownFragment());
-			fragments.add(new StopwatchFragment());
+			fragments.add(new StopWatchFragment());
 			fragments.add(new IntervalFragment());
 
 		}
@@ -92,13 +105,6 @@ public class TabHostFragmentActivity extends FragmentActivity
 			return fragments.get(index);
 		}
 
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState)
-	{
-		outState.putString("tab", mTabHost.getCurrentTabTag());
-		super.onSaveInstanceState(outState);
 	}
 
 	public static class TabsAdapter extends FragmentPagerAdapter implements
@@ -207,14 +213,6 @@ public class TabHostFragmentActivity extends FragmentActivity
 		public void onPageScrollStateChanged(int state)
 		{
 		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.menu, menu);
-		return true;
 	}
 
 }

@@ -30,7 +30,7 @@
         </activity>
 
         <service
-            android:name=".CountdownService"
+            android:name=".OpenTimerService"
             android:exported="false"
             android:label="@string/service_label" >
             <intent-filter>
