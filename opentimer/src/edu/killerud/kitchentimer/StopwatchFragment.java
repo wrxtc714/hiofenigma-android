@@ -28,8 +28,14 @@ public class StopWatchFragment extends Fragment
 		mWakeLock = mPowerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
 				"OpenTimer StopWatch");
 		mWakeLock.acquire();
+		LinearLayout stopWatchContent = new LinearLayout(container.getContext());
+		StopWatchView stopWatchView = new StopWatchView(
+				stopWatchContent.getContext());
 
-		return new LinearLayout(container.getContext());
+		stopWatchContent.addView(stopWatchView);
+		stopWatchContent.bringChildToFront(stopWatchView);
+
+		return stopWatchContent;
 	}
 
 	@Override
@@ -49,6 +55,7 @@ public class StopWatchFragment extends Fragment
 	@Override
 	public void onResume()
 	{
+		super.onResume();
 		if (!mWakeLock.isHeld())
 		{
 			mWakeLock.acquire();

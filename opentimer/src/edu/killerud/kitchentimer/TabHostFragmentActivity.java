@@ -8,14 +8,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuInflater;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TabHost;
 import android.widget.TabWidget;
-import android.widget.TextView;
 
 public class TabHostFragmentActivity extends FragmentActivity
 {
@@ -39,13 +36,14 @@ public class TabHostFragmentActivity extends FragmentActivity
 
 		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
-		TabHost.TabSpec tabLayout;
-		tabLayout = mTabHost.newTabSpec("opentimer");
-		mTabsAdapter.addTab(tabLayout.setIndicator(tabStyle("Countdown")),
+		mTabsAdapter.addTab(
+				mTabHost.newTabSpec("simple").setIndicator("Countdown"),
 				CountdownFragment.class, null);
-		mTabsAdapter.addTab(tabLayout.setIndicator(tabStyle("Stopwatch")),
+		mTabsAdapter.addTab(
+				mTabHost.newTabSpec("simple").setIndicator("Stopwatch"),
 				StopWatchFragment.class, null);
-		mTabsAdapter.addTab(tabLayout.setIndicator(tabStyle("Interval")),
+		mTabsAdapter.addTab(
+				mTabHost.newTabSpec("simple").setIndicator("Interval"),
 				IntervalFragment.class, null);
 		mViewPager.setCurrentItem(0);
 
@@ -56,28 +54,11 @@ public class TabHostFragmentActivity extends FragmentActivity
 
 	}
 
-	protected TextView tabStyle(String label)
-	{
-		TextView tabLabelContent = new TextView(this);
-		tabLabelContent.setText(label);
-		tabLabelContent.setPadding(0, 2, 0, 0);
-		tabLabelContent.setTextSize(10);
-		tabLabelContent.setGravity(Gravity.CENTER_HORIZONTAL);
-		tabLabelContent.setHeight(40);
-		return tabLabelContent;
-	}
-
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putString("tab", mTabHost.getCurrentTabTag());
 		super.onSaveInstanceState(outState);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		return true;
 	}
 
 	public class ViewPagerAdapter extends FragmentPagerAdapter
@@ -206,7 +187,7 @@ public class TabHostFragmentActivity extends FragmentActivity
 			TabWidget widget = mTabHost.getTabWidget();
 			int oldFocusability = widget.getDescendantFocusability();
 			widget.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-			mViewPager.setCurrentItem(position);
+			mTabHost.setCurrentTab(position);
 			widget.setDescendantFocusability(oldFocusability);
 		}
 

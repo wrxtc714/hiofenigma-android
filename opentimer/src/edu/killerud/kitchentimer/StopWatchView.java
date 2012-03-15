@@ -1,6 +1,7 @@
 package edu.killerud.kitchentimer;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -11,21 +12,22 @@ public class StopWatchView extends View
 
 	private final LinearLayout mLlTimerLayout;
 	private final Context mContext;
-	private final OpenTimerService mService;
+
 	private TextView mTvHours;
 	private TextView mTvMinutes;
 	private TextView mTvSeconds;
 	private TextView mTvHourMinuteSeparator;
 	private TextView mTvMinuteSecondSeparator;
 	private float mTextSize;
-	private StopWatch mStopWatch;
 
-	public StopWatchView(Context context, OpenTimerService service)
+	private StopWatchThread mStopWatchThread;
+
+	public StopWatchView(Context context)
 	{
 		super(context);
 		mContext = context;
-		mService = service;
-		mStopWatch = new StopWatch();
+		mStopWatchThread = new StopWatchThread(new StopWatch());
+		mStopWatchThread.start();
 
 		mLlTimerLayout = new LinearLayout(mContext);
 		mLlTimerLayout.setClickable(true);
@@ -36,13 +38,13 @@ public class StopWatchView extends View
 
 			public void onClick(View v)
 			{
-				if (mStopWatch.isRunning())
+				if (mStopWatchThread.isTiming())
 				{
-					// TODO display a new line with the current time.
+					storeAndDisplayTime(mStopWatchThread.getElapsedTime());
 
 				} else
 				{
-					mStopWatch.start();
+					mStopWatchThread.beginStopWatch();
 				}
 			}
 
@@ -53,9 +55,9 @@ public class StopWatchView extends View
 				{
 					public boolean onLongClick(View v)
 					{
-						if (mStopWatch.isRunning())
+						if (mStopWatchThread.isTiming())
 						{
-							mStopWatch.stop();
+							mStopWatchThread.resetStopWatch();
 						}
 						return true;
 					}
@@ -86,6 +88,65 @@ public class StopWatchView extends View
 
 		mLlTimerLayout
 				.setBackgroundResource(R.drawable.status_border_grey_slim);
+	}
+
+	protected void updateTick(long elapsedTimeMillis)
+	{
+		int hours = (int) (elapsedTimeMillis / 3600000);
+		int minutes = (int) (elapsedTimeMillis / 60000) - (hours * 60);
+		int seconds = (int) (elapsedTimeMillis / 1000) - (hours * 60 * 60)
+				- (minutes * 60);
+		mTvHours.setText((hours < 10) ? "0" + hours : "" + hours);
+		mTvMinutes.setText((minutes < 10) ? "0" + minutes : "" + minutes);
+		mTvSeconds.setText((seconds < 10) ? "0" + seconds : "" + seconds);
+	}
+
+	protected void storeAndDisplayTime(long elapsedTimeMillis)
+	{
+		Log.i("StopWatch", "" + elapsedTimeMillis);
+	}
+
+	private class StopWatchThread extends Thread
+	{
+		private final StopWatch mStopWatch;
+
+		public StopWatchThread(StopWatch stopWatch)
+		{
+			mStopWatch = stopWatch;
+		}
+
+		public void beginStopWatch()
+		{
+			mStopWatch.start();
+		}
+
+		public void resetStopWatch()
+		{
+			mStopWatch.stop();
+		}
+
+		public boolean isTiming()
+		{
+			return mStopWatch.isRunning();
+		}
+
+		public long getElapsedTime()
+		{
+			return mStopWatch.getElapsedTime();
+		}
+
+		@Override
+		public void run()
+		{
+			while (mStopWatch.isRunning())
+			{
+				if (mStopWatch.getElapsedTime() % 1000 == 0)
+				{
+					updateTick(mStopWatch.getElapsedTime());
+				}
+			}
+		}
+
 	}
 
 }
