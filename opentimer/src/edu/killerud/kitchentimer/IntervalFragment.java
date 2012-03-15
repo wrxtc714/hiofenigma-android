@@ -17,6 +17,10 @@ public class IntervalFragment extends Fragment
 		{
 			return null;
 		}
+
+		// TODO timepickers for setting the alarm interval
+		// TODO set up a repeating alarm using the alarm service
+		// TODO set up an equalivient to the CD for alarm sounding
 		return new LinearLayout(container.getContext());
 	}
 

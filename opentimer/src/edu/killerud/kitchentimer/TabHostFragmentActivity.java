@@ -20,6 +20,7 @@ public class TabHostFragmentActivity extends FragmentActivity
 	TabHost mTabHost;
 	ViewPager mViewPager;
 	TabsAdapter mTabsAdapter;
+	private CountdownFragment mCountdownFragment;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -30,6 +31,8 @@ public class TabHostFragmentActivity extends FragmentActivity
 
 		mTabHost = (TabHost) findViewById(android.R.id.tabhost);
 		mTabHost.setup();
+
+		mCountdownFragment = new CountdownFragment();
 
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mTabsAdapter);
@@ -68,7 +71,7 @@ public class TabHostFragmentActivity extends FragmentActivity
 		public ViewPagerAdapter(android.support.v4.app.FragmentManager fm)
 		{
 			super(fm);
-			fragments.add(new CountdownFragment());
+			fragments.add(mCountdownFragment);
 			fragments.add(new StopWatchFragment());
 			fragments.add(new IntervalFragment());
 
@@ -86,6 +89,16 @@ public class TabHostFragmentActivity extends FragmentActivity
 			return fragments.get(index);
 		}
 
+	}
+
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+		if (mCountdownFragment != null)
+		{
+			mCountdownFragment.serviceShutdownMagic();
+		}
 	}
 
 	public static class TabsAdapter extends FragmentPagerAdapter implements

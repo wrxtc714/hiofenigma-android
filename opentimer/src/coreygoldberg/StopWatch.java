@@ -28,6 +28,13 @@ public class StopWatch
 		this.running = false;
 	}
 
+	public void reset()
+	{
+		this.startTime = 0;
+		this.stopTime = 0;
+		this.running = false;
+	}
+
 	// elaspsed time in milliseconds
 	public long getElapsedTime()
 	{

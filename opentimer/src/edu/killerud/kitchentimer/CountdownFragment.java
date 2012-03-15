@@ -24,7 +24,6 @@ package edu.killerud.kitchentimer;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -101,7 +100,7 @@ public class CountdownFragment extends Fragment
 		}
 	};
 
-	private ArrayList<CountdownView> mTimerViews;
+	private ArrayList<CountdownLayout> mTimerViews;
 
 	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
 	{
@@ -168,7 +167,7 @@ public class CountdownFragment extends Fragment
 		mLlTimePicker = (LinearLayout) mLlContentLayout
 				.findViewById(R.id.llTimePicker);
 		setupTimePickers();
-		mTimerViews = new ArrayList<CountdownView>();
+		mTimerViews = new ArrayList<CountdownLayout>();
 
 		/* Sets up the add- and remove timer buttons */
 		Button bAddTimer = (Button) mLlContentLayout
@@ -214,6 +213,7 @@ public class CountdownFragment extends Fragment
 		super.onPause();
 		mContext.unregisterReceiver(broadcastReceiver);
 		mContext.unbindService(mConnection);
+		serviceShutdownMagic();
 
 	}
 
@@ -273,10 +273,10 @@ public class CountdownFragment extends Fragment
 
 	protected void addTimerView()
 	{
-		mTimerViews.add(new CountdownView(mContext, mTimerViews.size(),
+		mTimerViews.add(new CountdownLayout(mContext, mTimerViews.size(),
 				mCDService));
 		mLlContentLayout.addView(mTimerViews.get(mTimerViews.size() - 1)
-				.getTimerLayout());
+				.getLayout());
 	}
 
 	protected void removeTimer()
@@ -292,7 +292,7 @@ public class CountdownFragment extends Fragment
 		if (mTimerViews.size() > 0)
 		{
 			mLlContentLayout.removeView(mTimerViews.get(mTimerViews.size() - 1)
-					.getTimerLayout());
+					.getLayout());
 			mTimerViews.remove(mTimerViews.size() - 1);
 		}
 	}
@@ -319,6 +319,17 @@ public class CountdownFragment extends Fragment
 		mLlTimePicker.addView(npHours);
 		mLlTimePicker.addView(npMinutes);
 		mLlTimePicker.addView(npSeconds);
+	}
+
+	public void serviceShutdownMagic()
+	{
+		if (mCDService != null && mConnection != null)
+		{
+			if (mCDService.allAreFinished())
+			{
+				mCDService.stopSelf();
+			}
+		}
 	}
 
 	public static int getHours()
