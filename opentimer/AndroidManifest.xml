@@ -13,13 +13,13 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:debuggable="false"
+        android:debuggable="true"
         android:icon="@drawable/icon_96"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo.Light"
         uiOptions="splitActionBarWhenNarrow" >
         <activity
-            android:name=".OpenTimerActivity"
+            android:name=".TabHostFragmentActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Holo.Light" >
             <intent-filter>
