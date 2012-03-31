@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello</string>
+    <string name="app_name">OpenDice</string>
+
+    <color name="red">#FF0000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray">#808080</color>
+
+    <string name="roll">Roll</string>
+    <string name="remove">Remove die</string>
+    <string name="add">Add die</string>
+    <string name="instructions">Touch a die to save it between rolls</string>
+
+</resources>

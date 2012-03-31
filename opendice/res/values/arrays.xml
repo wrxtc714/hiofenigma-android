@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="DieTypes">
+        <item>3 faced</item>
+        <item>4 faced</item>
+        <item>5 faced</item>
+        <item>6 faced</item>
+        <item>7 faced</item>
+        <item>8 faced</item>
+        <item>10 faced</item>
+        <item>12 faced</item>
+        <item>14 faced</item>
+        <item>16 faced</item>
+        <item>18 faced</item>
+        <item>20 faced</item>
+        <item>24 faced</item>
+        <item>30 faced</item>
+        <item>50 faced</item>
+        <item>100 faced</item>
+    </string-array>
+
+</resources>
